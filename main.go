@@ -24,6 +24,17 @@ func getRows(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, rows)
 }
 
+func createRow(c *gin.Context) {
+	var newRow rowData
+
+	if err := c.BindJSON(&newRow); err != nil {
+		return
+	}
+
+	rows = append(rows, newRow)
+	c.IndentedJSON(http.StatusCreated, newRow)
+}
+
 func main() {
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -32,5 +43,6 @@ func main() {
 		AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
 	}))
 	router.GET("/rows", getRows)
+	router.POST("/addRow", createRow)
 	router.Run("localhost:8080")
 }

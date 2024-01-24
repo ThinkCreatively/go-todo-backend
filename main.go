@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,8 @@ func createRow(c *gin.Context) {
 		return
 	}
 
+	newRow.ID = strconv.Itoa(len(rows) + 1)
+
 	rows = append(rows, newRow)
 	c.IndentedJSON(http.StatusCreated, newRow)
 }
@@ -43,6 +46,6 @@ func main() {
 		AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
 	}))
 	router.GET("/rows", getRows)
-	router.POST("/addRow", createRow)
+	router.POST("/rows", createRow)
 	router.Run("localhost:8080")
 }

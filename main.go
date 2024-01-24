@@ -4,18 +4,19 @@ import (
 	"net/http"
 	"strconv"
 
+	"errors"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	// "errors"
 )
 
-type rowData struct {
+type row struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
 	Value string `json:"value"`
 }
 
-var rows = []rowData{
+var rows = []row{
 	{ID: "1", Title: "Row One", Value: "this is the value of row one"},
 	{ID: "2", Title: "Row two", Value: "this is the value of row two"},
 	{ID: "3", Title: "Row Three", Value: "this is the value of row three"},
@@ -25,8 +26,29 @@ func getRows(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, rows)
 }
 
+func rowById(c *gin.Context) {
+	id := c.Param("id")
+	row, err := getRowById(id)
+
+	if err != nil {
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, row)
+}
+
+func getRowById(id string) (*row, error) {
+	for i, r := range rows {
+		if r.ID == id {
+			return &rows[i], nil
+		}
+	}
+
+	return nil, errors.New("row not found")
+}
+
 func createRow(c *gin.Context) {
-	var newRow rowData
+	var newRow row
 
 	if err := c.BindJSON(&newRow); err != nil {
 		return
@@ -47,5 +69,6 @@ func main() {
 	}))
 	router.GET("/rows", getRows)
 	router.POST("/rows", createRow)
+	// router.DELETE("/rows", deleteRow)
 	router.Run("localhost:8080")
 }

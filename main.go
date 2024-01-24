@@ -31,6 +31,7 @@ func rowById(c *gin.Context) {
 	row, err := getRowById(id)
 
 	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Book not found."})
 		return
 	}
 

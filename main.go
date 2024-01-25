@@ -48,8 +48,8 @@ func getRowById(id int) (*row, error) {
 	return nil, errors.New("row not found")
 }
 
-func deleteElement(index int) []row {
-	return append(rows[:index], rows[index+1:]...)
+func deleteElement(id int) []row {
+	return append(rows[:id], rows[id+1:]...)
 }
 
 func deleteRow(c *gin.Context) {

@@ -11,34 +11,34 @@ import (
 )
 
 type row struct {
-	ID    string `json:"id"`
+	ID    int    `json:"id"`
 	Title string `json:"title"`
 	Value string `json:"value"`
 }
 
 var rows = []row{
-	{ID: "1", Title: "Row One", Value: "this is the value of row one"},
-	{ID: "2", Title: "Row two", Value: "this is the value of row two"},
-	{ID: "3", Title: "Row Three", Value: "this is the value of row three"},
+	{ID: 1, Title: "Row One", Value: "this is the value of row one"},
+	{ID: 2, Title: "Row two", Value: "this is the value of row two"},
+	{ID: 3, Title: "Row Three", Value: "this is the value of row three"},
 }
 
 func getRows(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, rows)
 }
 
-func rowById(c *gin.Context) {
-	id := c.Param("id")
-	row, err := getRowById(id)
+// func rowById(c *gin.Context) {
+// 	id := c.Param("id")
+// 	row, err := getRowById(id)
 
-	if err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Book not found."})
-		return
-	}
+// 	if err != nil {
+// 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Book not found."})
+// 		return
+// 	}
 
-	c.IndentedJSON(http.StatusOK, row)
-}
+// 	c.IndentedJSON(http.StatusOK, row)
+// }
 
-func getRowById(id string) (*row, error) {
+func getRowById(id int) (*row, error) {
 	for i, r := range rows {
 		if r.ID == id {
 			return &rows[i], nil
@@ -48,6 +48,23 @@ func getRowById(id string) (*row, error) {
 	return nil, errors.New("row not found")
 }
 
+func deleteElement(index int) []row {
+	return append(rows[:index], rows[index+1:]...)
+}
+
+func deleteRow(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "invalid row id"})
+		return
+	}
+
+	deleteElement(id)
+
+	c.IndentedJSON(http.StatusOK, rows)
+}
+
 func createRow(c *gin.Context) {
 	var newRow row
 
@@ -55,7 +72,7 @@ func createRow(c *gin.Context) {
 		return
 	}
 
-	newRow.ID = strconv.Itoa(len(rows) + 1)
+	newRow.ID = len(rows) + 1
 
 	rows = append(rows, newRow)
 	c.IndentedJSON(http.StatusCreated, newRow)
@@ -70,6 +87,6 @@ func main() {
 	}))
 	router.GET("/rows", getRows)
 	router.POST("/rows", createRow)
-	// router.DELETE("/rows", deleteRow)
+	router.DELETE("/rows/:id", deleteRow)
 	router.Run("localhost:8080")
 }
